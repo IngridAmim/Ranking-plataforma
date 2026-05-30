@@ -30,6 +30,7 @@ def verificar_token(credentials: HTTPAuthorizationCredentials = Depends(security
             issuer=JWT_ISSUER,
             audience=JWT_AUDIENCE
         )
+    
         
         user_id: str = payload.get("sub")
         
