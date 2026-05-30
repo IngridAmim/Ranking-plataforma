@@ -1,6 +1,5 @@
 import os
 import jwt
-import requests
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -35,89 +34,71 @@ def verificar_token(credentials: HTTPAuthorizationCredentials = Depends(security
         user_id: str = payload.get("sub")
         
         if not user_id:
-            raise HTTPException(status_code=401, detail="Invalid token claims")
+            raise HTTPException(status_code=401, detail="Acesso negado")
             
         return user_id
         
     except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token expirado")
+        raise HTTPException(status_code=401, detail="Sessão expirada")
     except Exception:
-        raise HTTPException(status_code=401, detail="Token invalido")
+        raise HTTPException(status_code=401, detail="Acesso não autorizado")
 
-def get_cheapshark_top_8():
-    cheapshark_url = "https://www.cheapshark.com/api/1.0/deals?storeID=1&lowerPrice=0&limit=8&onSale=1&sortBy=metacritic"
-    try:
-        response = requests.get(cheapshark_url)
-        response.raise_for_status()
-        deals = response.json()
+def get_banco_de_dados_jogos():
+    return [
+        # PLAYSTATION
+        {"platform": "PlayStation", "name": "God of War Ragnarök", "score": "94", "image": "https://cdn.akamai.steamstatic.com/steam/apps/2322010/header.jpg"},
+        {"platform": "PlayStation", "name": "The Last of Us Part II", "score": "93", "image": "https://image.api.playstation.com/vulcan/ap/rnd/202008/1020/T45iRN1bhiWcJUzWN6ubTEcb.png"},
+        {"platform": "PlayStation", "name": "Spider-Man 2", "score": "90", "image": "https://image.api.playstation.com/vulcan/ap/rnd/202306/1219/1c7b75d8ed9271516546560d219ad0b22ee0a263b4537bd8.png"},
+        {"platform": "PlayStation", "name": "Horizon Forbidden West", "score": "88", "image": "https://cdn.akamai.steamstatic.com/steam/apps/2420110/header.jpg"},
+        {"platform": "PlayStation", "name": "Ghost of Tsushima", "score": "87", "image": "https://cdn.akamai.steamstatic.com/steam/apps/2215430/header.jpg"},
+        {"platform": "PlayStation", "name": "Demon's Souls", "score": "92", "image": "https://image.api.playstation.com/vulcan/img/rnd/202011/1717/BXrwEBVEBofwKkGAqNn6LUNV.png"},
+        {"platform": "PlayStation", "name": "Bloodborne", "score": "92", "image": "https://image.api.playstation.com/vulcan/img/rnd/202010/2614/FmXEBhaP2LxEsG2m1lTIfaOa.png"},
+        {"platform": "PlayStation", "name": "Ratchet & Clank: Rift Apart", "score": "88", "image": "https://cdn.akamai.steamstatic.com/steam/apps/1895880/header.jpg"},
         
-        ranking_formatado = []
-        for index, deal in enumerate(deals):
-            if deal.get("metacriticScore") and deal.get("metacriticScore") != "0":
-                game_data = {
-                    "rank": index + 1,
-                    "platform": "Steam",
-                    "name": deal.get("title"),
-                    "image": deal.get("thumb"),
-                    "score": deal.get("metacriticScore")
-                }
-                ranking_formatado.append(game_data)
-        
-        return ranking_formatado[:8]
-        
-    except requests.exceptions.RequestException:
-        return []
+        # XBOX
+        {"platform": "Xbox", "name": "Halo Infinite", "score": "87", "image": "https://cdn.akamai.steamstatic.com/steam/apps/1240440/header.jpg"},
+        {"platform": "Xbox", "name": "Forza Horizon 5", "score": "92", "image": "https://cdn.akamai.steamstatic.com/steam/apps/1551360/header.jpg"},
+        {"platform": "Xbox", "name": "Starfield", "score": "83", "image": "https://cdn.akamai.steamstatic.com/steam/apps/1716740/header.jpg"},
+        {"platform": "Xbox", "name": "Gears 5", "score": "84", "image": "https://cdn.akamai.steamstatic.com/steam/apps/1097840/header.jpg"},
+        {"platform": "Xbox", "name": "Sea of Thieves", "score": "81", "image": "https://cdn.akamai.steamstatic.com/steam/apps/1172620/header.jpg"},
+        {"platform": "Xbox", "name": "Microsoft Flight Simulator", "score": "91", "image": "https://cdn.akamai.steamstatic.com/steam/apps/1250410/header.jpg"},
+        {"platform": "Xbox", "name": "Hi-Fi RUSH", "score": "89", "image": "https://cdn.akamai.steamstatic.com/steam/apps/1817230/header.jpg"},
+        {"platform": "Xbox", "name": "Ori and the Will of the Wisps", "score": "90", "image": "https://cdn.akamai.steamstatic.com/steam/apps/1057090/header.jpg"},
 
-def get_local_console_top_8(platform_name: str):
-    mock_data = [
-        {"name": "God of War Ragnarök", "score": "94"},
-        {"name": "Spider-Man 2", "score": "90"},
-        {"name": "The Last of Us Part I", "score": "88"}
+        # STEAM (PC)
+        {"platform": "Steam", "name": "Cyberpunk 2077", "score": "86", "image": "https://cdn.akamai.steamstatic.com/steam/apps/1091500/header.jpg"},
+        {"platform": "Steam", "name": "Elden Ring", "score": "96", "image": "https://cdn.akamai.steamstatic.com/steam/apps/1245620/header.jpg"},
+        {"platform": "Steam", "name": "Baldur's Gate 3", "score": "96", "image": "https://cdn.akamai.steamstatic.com/steam/apps/1086940/header.jpg"},
+        {"platform": "Steam", "name": "Hollow Knight", "score": "90", "image": "https://cdn.akamai.steamstatic.com/steam/apps/367520/header.jpg"},
+        {"platform": "Steam", "name": "Stardew Valley", "score": "89", "image": "https://cdn.akamai.steamstatic.com/steam/apps/413150/header.jpg"},
+        {"platform": "Steam", "name": "Red Dead Redemption 2", "score": "93", "image": "https://cdn.akamai.steamstatic.com/steam/apps/1174180/header.jpg"},
+        {"platform": "Steam", "name": "Helldivers 2", "score": "82", "image": "https://cdn.akamai.steamstatic.com/steam/apps/553850/header.jpg"},
+        {"platform": "Steam", "name": "Lethal Company", "score": "85", "image": "https://cdn.akamai.steamstatic.com/steam/apps/1966720/header.jpg"},
+
+        # EPIC GAMES
+        {"platform": "Epic", "name": "Fortnite", "score": "81", "image": "https://cdn2.unrealengine.com/blade-2560x1440-2560x1440-d4e556fb8166.jpg"},
+        {"platform": "Epic", "name": "Alan Wake 2", "score": "89", "image": "https://cdn2.unrealengine.com/egs-alanwake2-remedyentertainment-g1a-00-1920x1080-6058e5d0bfcb.jpg"},
+        {"platform": "Epic", "name": "Rocket League", "score": "86", "image": "https://cdn2.unrealengine.com/egs-rocketleague-psyonixllc-g1a-00-1920x1080-b7dc444fb408.jpg"},
+        {"platform": "Epic", "name": "Genshin Impact", "score": "81", "image": "https://cdn2.unrealengine.com/egs-genshinimpact-mihoyolimited-g1a-00-1920x1080-0a259c7b9db1.jpg"},
+        {"platform": "Epic", "name": "Fall Guys", "score": "81", "image": "https://cdn2.unrealengine.com/egs-fallguys-mediatonic-g1a-00-1920x1080-2a558dc06d91.jpg"},
+        {"platform": "Epic", "name": "Valorant", "score": "80", "image": "https://cdn2.unrealengine.com/egs-valorant-riotgames-g1a-00-1920x1080-b8f9e68ba9b0.jpg"},
+        {"platform": "Epic", "name": "Dead Island 2", "score": "73", "image": "https://cdn2.unrealengine.com/egs-deadisland2-dambusterstudios-g1a-00-1920x1080-1a7eecc10e05.jpg"},
+        {"platform": "Epic", "name": "Hades", "score": "93", "image": "https://cdn.akamai.steamstatic.com/steam/apps/1145360/header.jpg"}
     ]
-    
-    ranking_formatado = []
-    for index, game in enumerate(mock_data):
-        game_data = {
-            "rank": index + 1,
-            "platform": platform_name,
-            "name": game.get("name"),
-            "image": f"https://example.com/mock_images/{platform_name}.jpg",
-            "score": game.get("score")
-        }
-        ranking_formatado.append(game_data)
-        
-    return ranking_formatado[:8]
 
 @app.get("/compare")
 def get_compare(user_id: str = Depends(verificar_token)):
-    steam_data = get_cheapshark_top_8()
-    epic_mock = [{"platform": "Epic", "name": "GTA V", "score": "96", "image": "epic_gta.jpg"}]
+    todos_os_jogos = get_banco_de_dados_jogos()
+    jogos_ordenados = sorted(todos_os_jogos, key=lambda x: int(x.get('score', 0)), reverse=True)
     
-    ps_data = get_local_console_top_8("PlayStation")
-    xbox_data = get_local_console_top_8("Xbox")
+    for index, jogo in enumerate(jogos_ordenados):
+        jogo["rank"] = index + 1
     
-    comparison = []
-    
-    if steam_data: 
-        comparison.append(steam_data[0])
-    if epic_mock: 
-        comparison.append(epic_mock[0])
-    if ps_data: 
-        comparison.append(ps_data[0])
-    if xbox_data: 
-        comparison.append(xbox_data[0])
-
-    comparison_sorted = sorted(comparison, key=lambda x: int(x.get('score', 0)), reverse=True)
-    
-    return {
-        "success": True,
-        "authenticated_user_id": user_id, 
-        "data": comparison_sorted
-    }
+    return {"data": jogos_ordenados}
 
 @app.get("/")
 def home():
-    return {"status": "Microsserviço de Ranking GameVerse está rodando!"}
+    return {"status": "online"}
 
 if __name__ == "__main__":
     import uvicorn
